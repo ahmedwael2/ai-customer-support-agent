@@ -1,0 +1,439 @@
+{
+  "name": "AI Support Agent.",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bb0778ee-2c17-4c9f-8903-6e161c3b11eb",
+      "name": "Telegram Trigger",
+      "webhookId": "2c2f4388-75e6-4b87-90ba-cf43670baa1b",
+      "credentials": {
+        "telegramApi": {
+          "id": "uk3XWIPLOKcF7G3P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a friendly customer support agent for an electronics store called TechGo.\n\nYour job:\n- Answer questions about products (price, stock, description) using the Products tool\n- Answer FAQ questions (shipping, returns, warranty) using the FAQs tool\n- Check order status using the Orders tool\n\nRules:\n- Always be polite and professional\n- If you don't find an answer in your tools, say you'll escalate to a human agent\n- Keep responses short and clear (2-3 sentences max)\n- Never make up information not found in your tools\nBe efficient: only use a tool if absolutely necessary to answer the question.",
+          "autoSaveHighlightedData": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e17b2d1c-9bd5-482a-9f78-210893bc5057",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "3eac90db-13a0-412e-9a24-c54ca2b983e0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RR0ekLoIeo4RkbOj",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        208
+      ],
+      "id": "97f84f03-6662-4a87-9408-90d3fcf9a943",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to search for product information including \nname, price, stock availability, and description. Use it \nwhen the customer asks about a specific product, price, \nor availability.",
+        "documentId": {
+          "__rl": true,
+          "value": "1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Products",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        272
+      ],
+      "id": "5d5976b9-6be1-4fc6-91bc-209907a78f84",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "N6SwYLgJQCeywFoO",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to find answers to frequently asked questions \nabout shipping, returns, warranty, payment methods, order \ncancellation, and international shipping policies.",
+        "documentId": {
+          "__rl": true,
+          "value": "1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 702364594,
+          "mode": "list",
+          "cachedResultName": "FAQs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit#gid=702364594"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        304
+      ],
+      "id": "9b8a72c5-1068-469a-8657-a5b28f57d2e6",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "N6SwYLgJQCeywFoO",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to check the status of a customer's order. \nSearch by order_id or customer_name to find order status, \nproduct, and date.",
+        "documentId": {
+          "__rl": true,
+          "value": "1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1359323742,
+          "mode": "list",
+          "cachedResultName": "Orders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit#gid=1359323742"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        304
+      ],
+      "id": "7717763d-b9c4-4b84-9bbe-09b0d8a55502",
+      "name": "Get row(s) in sheet in Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "N6SwYLgJQCeywFoO",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        16
+      ],
+      "id": "b111dd81-4413-4d04-8610-351fa17173ea",
+      "name": "Send a text message",
+      "webhookId": "b42ed637-309e-47c3-a893-38b7ff9988bf",
+      "credentials": {
+        "telegramApi": {
+          "id": "uk3XWIPLOKcF7G3P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs",
+          "mode": "list",
+          "cachedResultName": "AI Support Agent DB",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 820542225,
+          "mode": "list",
+          "cachedResultName": "Conversations ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BxnNzHcmWI2FI3Ei4DSrwbWC9WYx7tFXgTbnMDUqGqs/edit#gid=820542225"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now }}",
+            "chat_id": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "username": "={{ $('Telegram Trigger').item.json.message.from.username }}",
+            "question": "={{ $('Telegram Trigger').item.json.message.text }}",
+            "answer": "={{ $json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "username",
+              "displayName": "username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "answer",
+              "displayName": "answer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        -128
+      ],
+      "id": "83e87b8e-a8b9-45ad-9abc-305b165d0f4c",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "N6SwYLgJQCeywFoO",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to escalate an issue to a human support admin \nwhen you cannot resolve the customer's request, when they \nwant to modify an order, file a complaint, or ask something \noutside your knowledge. Include the customer's question and \nrelevant context in the message.",
+        "chatId": "708448686",
+        "text": "={{ $fromAI(\"message\", \"The escalation message with customer details\") }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        208
+      ],
+      "id": "d29b1a7c-7a80-4aa0-83a8-2ee33d23db83",
+      "name": "Send a text message in Telegram",
+      "webhookId": "e7ee35b5-2fcc-4592-8592-03feebbee380",
+      "credentials": {
+        "telegramApi": {
+          "id": "uk3XWIPLOKcF7G3P",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message in Telegram": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "7ed79e72-2870-4701-bb45-1b2801ae7b6a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a5cda63acb5444a37312bd6a9f9f9160949990017119b312e633f42040626870"
+  },
+  "nodeGroups": [],
+  "id": "LM32132kxFXLLlXU",
+  "tags": []
+}
